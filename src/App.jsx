@@ -1,11 +1,175 @@
 import React, { useState, useEffect } from 'react'
 
+// PIN Protection - Uses environment variable
+const APP_PIN = import.meta.env.VITE_APP_PIN
+
 // Airtable Configuration - Uses environment variables for security
 const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID
 const AIRTABLE_TABLE_NAME = import.meta.env.VITE_AIRTABLE_TABLE_NAME || 'Daily Logs'
 const AIRTABLE_API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY
 
 const AIRTABLE_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`
+
+// PIN Entry Screen Component
+function PinScreen({ onSuccess }) {
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState(false)
+  const [rememberDevice, setRememberDevice] = useState(false)
+
+  const handleSubmit = () => {
+    if (pin === APP_PIN) {
+      if (rememberDevice) {
+        localStorage.setItem('frs-device-auth', 'true')
+      }
+      onSuccess()
+    } else {
+      setError(true)
+      setPin('')
+      setTimeout(() => setError(false), 1500)
+    }
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit()
+    }
+  }
+
+  return (
+    <div style={pinStyles.container}>
+      <div style={pinStyles.card}>
+        <div style={pinStyles.gymBadge}>IRON HORSE</div>
+        <h1 style={pinStyles.title}>FRS TRACKER</h1>
+        <p style={pinStyles.subtitle}>Enter PIN to continue</p>
+        
+        <input
+          type="password"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={6}
+          value={pin}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+          onKeyPress={handleKeyPress}
+          placeholder="••••"
+          style={{
+            ...pinStyles.input,
+            borderColor: error ? '#ff4444' : '#333',
+            animation: error ? 'shake 0.5s ease' : 'none'
+          }}
+          autoFocus
+        />
+        
+        {error && <p style={pinStyles.error}>Wrong PIN</p>}
+        
+        <label style={pinStyles.rememberLabel}>
+          <input
+            type="checkbox"
+            checked={rememberDevice}
+            onChange={(e) => setRememberDevice(e.target.checked)}
+            style={pinStyles.checkbox}
+          />
+          Remember this device
+        </label>
+        
+        <button onClick={handleSubmit} style={pinStyles.button}>
+          ENTER
+        </button>
+      </div>
+      
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+const pinStyles = {
+  container: {
+    minHeight: '100vh',
+    background: '#0a0a0a',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: '"Barlow", system-ui, sans-serif',
+  },
+  card: {
+    background: '#111',
+    border: '1px solid #222',
+    borderRadius: '12px',
+    padding: '40px',
+    textAlign: 'center',
+    maxWidth: '320px',
+    width: '90%',
+  },
+  gymBadge: {
+    fontSize: '11px',
+    color: '#ff4444',
+    letterSpacing: '3px',
+    marginBottom: '5px',
+    fontWeight: '700',
+  },
+  title: {
+    fontSize: '28px',
+    margin: '0 0 8px 0',
+    fontWeight: '900',
+    color: '#fff',
+  },
+  subtitle: {
+    fontSize: '14px',
+    color: '#666',
+    margin: '0 0 24px 0',
+  },
+  input: {
+    width: '100%',
+    padding: '16px',
+    fontSize: '24px',
+    textAlign: 'center',
+    letterSpacing: '8px',
+    background: '#0a0a0a',
+    border: '2px solid #333',
+    borderRadius: '8px',
+    color: '#fff',
+    fontFamily: 'monospace',
+    boxSizing: 'border-box',
+    outline: 'none',
+  },
+  error: {
+    color: '#ff4444',
+    fontSize: '14px',
+    margin: '12px 0 0 0',
+  },
+  rememberLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    fontSize: '13px',
+    color: '#666',
+    margin: '20px 0',
+    cursor: 'pointer',
+  },
+  checkbox: {
+    width: '16px',
+    height: '16px',
+    cursor: 'pointer',
+  },
+  button: {
+    width: '100%',
+    padding: '14px',
+    background: 'linear-gradient(180deg, #ff4444 0%, #cc0000 100%)',
+    border: 'none',
+    borderRadius: '6px',
+    color: '#fff',
+    fontSize: '14px',
+    fontWeight: '700',
+    letterSpacing: '2px',
+    cursor: 'pointer',
+  },
+}
 
 // Activity data with weights and categories
 const ACTIVITIES = {
@@ -110,6 +274,19 @@ async function updateRecord(recordId, fields) {
 }
 
 function App() {
+  // PIN Authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Check if device is remembered or if no PIN is set
+    if (!APP_PIN) return true
+    return localStorage.getItem('frs-device-auth') === 'true'
+  })
+
+  // Show PIN screen if not authenticated
+  if (!isAuthenticated) {
+    return <PinScreen onSuccess={() => setIsAuthenticated(true)} />
+  }
+
+  // Main app starts here
   const [currentDate] = useState(new Date())
   const [checkedItems, setCheckedItems] = useState({})
   const [pomodoroCount, setPomodoroCount] = useState(0)
