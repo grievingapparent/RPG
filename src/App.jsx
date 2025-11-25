@@ -281,12 +281,7 @@ function App() {
     return localStorage.getItem('frs-device-auth') === 'true'
   })
 
-  // Show PIN screen if not authenticated
-  if (!isAuthenticated) {
-    return <PinScreen onSuccess={() => setIsAuthenticated(true)} />
-  }
-
-  // Main app starts here
+  // All hooks must be declared before any conditional returns
   const [currentDate] = useState(new Date())
   const [checkedItems, setCheckedItems] = useState({})
   const [pomodoroCount, setPomodoroCount] = useState(0)
@@ -304,6 +299,8 @@ function App() {
 
   // Load data from Airtable on mount
   useEffect(() => {
+    if (!isAuthenticated) return // Don't load if not authenticated
+    
     async function loadData() {
       setLoading(true)
       setSyncStatus('syncing')
@@ -342,7 +339,12 @@ function App() {
     }
     
     loadData()
-  }, [])
+  }, [isAuthenticated])
+
+  // Show PIN screen if not authenticated
+  if (!isAuthenticated) {
+    return <PinScreen onSuccess={() => setIsAuthenticated(true)} />
+  }
 
   // Calculate days remaining
   const daysRemaining = Math.ceil((FIGHT_DATE - currentDate) / (1000 * 60 * 60 * 24))
