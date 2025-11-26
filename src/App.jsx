@@ -470,8 +470,19 @@ function App() {
       {/* Fight Countdown */}
       <section style={styles.countdownSection}>
         <div style={styles.countdownCard}>
-          <div style={styles.countdownLabel}>DAYS TO FIGHT</div>
-          <div style={styles.countdownNumber}>{daysRemaining}</div>
+          <div style={styles.countdownTop}>
+            <div style={styles.countdownLeft}>
+              <div style={styles.countdownLabel}>DAYS TO FIGHT</div>
+              <div style={styles.countdownNumber}>{daysRemaining}</div>
+            </div>
+            <div style={styles.opponentPhoto}>
+              <img 
+                src="/javon.jpg" 
+                alt="Javon 'The Blitz' Barnes" 
+                style={styles.opponentImg}
+              />
+            </div>
+          </div>
           <div style={styles.fightInfo}>
             <span style={styles.opponentName}>vs. JAVON "THE BLITZ" BARNES</span>
             <span style={styles.fightDate}>FEB 22, 2026</span>
@@ -758,6 +769,30 @@ const styles = {
     borderRadius: '8px',
     padding: '25px',
     marginBottom: '15px',
+  },
+  countdownTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '10px',
+  },
+  countdownLeft: {
+    flex: 1,
+  },
+  opponentPhoto: {
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    border: '3px solid #ff4444',
+    boxShadow: '0 0 20px rgba(255, 68, 68, 0.3)',
+    flexShrink: 0,
+  },
+  opponentImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'center top',
   },
   countdownLabel: {
     fontFamily: 'monospace',
