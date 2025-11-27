@@ -220,7 +220,7 @@ const ACTIVITIES = {
 const FIGHT_DATE = new Date('2026-02-22T00:00:00')
 const START_DATE = new Date('2025-11-25T00:00:00')
 const OPPONENT_FRS = 3.8
-const TARGET_WEIGHT = 135
+const TARGET_WEIGHT = 163
 const START_WEIGHT = 145
 
 // Airtable API functions
@@ -459,7 +459,7 @@ function App() {
         <div style={styles.headerLeft}>
           <div style={styles.gymBadge}>IRON HORSE</div>
           <h1 style={styles.title}>RAVYN SUMMERS</h1>
-          <div style={styles.record}>0-0 • BANTAMWEIGHT • NYC CAGE WARS</div>
+          <div style={styles.record}>0-0 • LIGHTWEIGHT • NYC CAGE WARS</div>
         </div>
         <div style={styles.headerRight}>
           <div style={styles.dayCounter}>DAY {dayNumber}</div>
@@ -525,7 +525,7 @@ function App() {
       {/* Weight Tracker */}
       <section style={styles.weightSection}>
         <div style={styles.weightHeader}>
-          <span style={styles.weightLabel}>WEIGHT CUT</span>
+          <span style={styles.weightLabel}>BULK PHASE</span>
           <span style={styles.weightTarget}>{currentWeight} → {TARGET_WEIGHT} lbs</span>
         </div>
         <div style={styles.weightControls}>
@@ -539,11 +539,11 @@ function App() {
           <div style={styles.weightProgress}>
             <div style={{
               ...styles.weightBar, 
-              width: `${Math.max(0, Math.min(100, ((START_WEIGHT - currentWeight) / (START_WEIGHT - TARGET_WEIGHT)) * 100))}%`
+              width: `${Math.max(0, Math.min(100, ((currentWeight - START_WEIGHT) / (TARGET_WEIGHT - START_WEIGHT)) * 100))}%`
             }} />
           </div>
           <span style={styles.weightRemaining}>
-            {(currentWeight - TARGET_WEIGHT).toFixed(1)} lbs to go
+            {(TARGET_WEIGHT - currentWeight).toFixed(1)} lbs to gain
           </span>
         </div>
       </section>
